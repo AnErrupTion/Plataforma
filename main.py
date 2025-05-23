@@ -60,7 +60,7 @@ class Personnage(Sprite):
                 self.level.tilemap.pget(self.x // 8, (self.y + self.h) // 8)
                 in TILE_COLLISION
                 or self.level.tilemap.pget(
-                    (self.x + abs(self.w)-1) // 8, (self.y + self.h) // 8
+                    (self.x + abs(self.w) - 1) // 8, (self.y + self.h) // 8
                 )
                 in TILE_COLLISION
             ):
@@ -114,14 +114,14 @@ class Personnage(Sprite):
 
     def verifie_position(self):
         if self.peut_deplacer(BAS):
-                self.is_grounded = False
-                self.dy = self.gravity
+            self.is_grounded = False
+            self.dy = self.gravity
 
         if not self.peut_deplacer(HAUT) or not self.peut_deplacer(BAS):
             self.is_grounded = True
             self.dy = 0
-        
-        if self.dx >0 and not self.peut_deplacer(DROITE):
+
+        if self.dx > 0 and not self.peut_deplacer(DROITE):
             self.dx = 0
         elif self.dx < 0 and not self.peut_deplacer(GAUCHE):
             self.dx = 0
@@ -250,7 +250,7 @@ class Squelette(Monstre):
 
 class Coeur(Sprite):
     def __init__(self, camx, camy, num):
-        super().__init__(camx + 5 + num * 10, camy + 5, 112, 48)
+        super().__init__(camx + num * 10, camy, 112, 48)
 
 
 class Niveau:
@@ -284,14 +284,21 @@ class App:
 
         pyxel.run(self._update, self._draw)
 
+    def _reset(self):
+        self.joueur = Joueur(8, 64, self.niveau, 3)
+
     def _update(self):
+        if self.joueur.vie <= 0 or self.joueur.y >= HEIGHT - 20:
+            self._reset()
+            return
+
         self.niveau.update(self.joueur)
         self.joueur.update(self.joueur, self.niveau)
 
     def _draw(self):
         camx, camy = self.joueur.x - 20, self.joueur.y - 60
 
-        pyxel.cls(pyxel.COLOR_DARK_BLUE)
+        pyxel.cls(pyxel.COLOR_NAVY)
         pyxel.camera(camx, camy)
 
         self.niveau.draw()

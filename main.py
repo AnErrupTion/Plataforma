@@ -239,7 +239,7 @@ class Arbalete(Sprite):
         self.personnage = personnage
         super().__init__(personnage.x + 8, personnage.y + personnage.h, 80, 64)
         self.wabs = abs(self.w)
-        direction = -1 if self.personnage.x < self.x else 1
+        direction = 1 if self.personnage.x < self.x else -1
         self.w = direction * self.wabs
         self.uorig = self.u
         self.ucur = 0
@@ -255,7 +255,7 @@ class Arbalete(Sprite):
             self.u = self.uorig
 
         self.x = self.personnage.x + self.personnage.w // 2
-        direction = -1 if self.personnage.x < self.x else 1
+        direction = 1 if self.personnage.x < self.x else -1
         self.w = direction * self.wabs
         return super().draw()
 
@@ -316,7 +316,7 @@ class App:
 
     def _reset(self):
         self.etat = 0
-        self.niveau = Niveau(64, 32, 0, [])
+        self.niveau = Niveau(64, 32, 0, [Piece(64, 64)])
         self.niveau.objets.append(Squelette(160, 40, self.niveau))
 
         self.joueur = Joueur(8, 64, self.niveau, 3)
@@ -348,6 +348,16 @@ class App:
             for num in range(self.joueur.vie):
                 coeur = Coeur(camx, camy, num)
                 coeur.draw()
+
+            piece = Piece(camx, camy + 15)
+            piece.draw()
+
+            pyxel.text(
+                camx + 16,
+                camy + 20,
+                str(self.joueur.score),
+                pyxel.COLOR_WHITE,
+            )
         elif self.etat == 1:
             pyxel.cls(pyxel.COLOR_RED)
 

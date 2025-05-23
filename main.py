@@ -96,11 +96,23 @@ class Joueur(Personnage):
             self.deplacer(DROITE)
 
 
+class Niveau:
+    def __init__(self, tilemap, collectibles, plateformes):
+        self.tilemap = pyxel.tilemap(tilemap)
+        self.collectibles = collectibles
+        self.plateformes = plateformes
+        self.tilemap.load(0, 0, "2.pyxres", 0)
+
+    def draw(self):
+        pyxel.bltm(0, 0, self.tilemap, 0, 0, 64 * 8, 32 * 8)
+
+
 class App:
     def __init__(self):
         pyxel.init(WIDTH, HEIGHT, title="Plataforma!", fps=60)
         pyxel.load("2.pyxres")
 
+        self.niveau = Niveau(0, [], [])
         self.joueur = Joueur(64, 64)
 
         pyxel.run(self._update, self._draw)
@@ -110,6 +122,7 @@ class App:
 
     def _draw(self):
         pyxel.cls(pyxel.COLOR_BLACK)
+        self.niveau.draw()
         self.joueur.draw()
 
 

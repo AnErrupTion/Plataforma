@@ -60,7 +60,7 @@ class Personnage(Sprite):
                 self.level.tilemap.pget(self.x // 8, (self.y + self.h) // 8)
                 in TILE_COLLISION
                 or self.level.tilemap.pget(
-                    (self.x + self.w - 1) // 8, (self.y + self.h) // 8
+                    (self.x + abs(self.w)-1) // 8, (self.y + self.h) // 8
                 )
                 in TILE_COLLISION
             ):
@@ -68,7 +68,7 @@ class Personnage(Sprite):
         elif direction == HAUT:
             if (
                 self.level.tilemap.pget(self.x // 8, self.y // 8) in TILE_COLLISION
-                or self.level.tilemap.pget((self.x + self.w - 1) // 8, self.y // 8)
+                or self.level.tilemap.pget((self.x + abs(self.w) - 1) // 8, self.y // 8)
                 in TILE_COLLISION
             ):
                 return False
@@ -81,10 +81,10 @@ class Personnage(Sprite):
                 return False
         elif direction == DROITE:
             if (
-                self.level.tilemap.pget((self.x + self.w) // 8, self.y // 8)
+                self.level.tilemap.pget((self.x + abs(self.w)) // 8, self.y // 8)
                 in TILE_COLLISION
                 or self.level.tilemap.pget(
-                    (self.x + self.w) // 8, (self.y + self.h - 1) // 8
+                    (self.x + abs(self.w)) // 8, (self.y + self.h - 1) // 8
                 )
                 in TILE_COLLISION
             ):
@@ -113,10 +113,8 @@ class Personnage(Sprite):
             self.dx = round(self.dx + self.vitesse, 1)
 
     def update(self, joueur, niveau):
-        if 0 <= self.x + self.dx <= WIDTH - abs(self.w):
-            self.x += self.dx
-        if 0 <= self.y + self.dy <= HEIGHT - abs(self.h):
-            self.y += self.dy
+        self.x += self.dx
+        self.y += self.dy
 
         if self.dx > 0:
             self.dx = round(self.dx - 0.2, 1)

@@ -219,6 +219,7 @@ class Joueur(Personnage):
             self.sauter()
             appuye = True
         if pyxel.btnp(pyxel.KEY_R):
+            pyxel.play(0, 4)
             for objet in niveau.objets:
                 if isinstance(objet, Monstre) and self.collision(objet):
                     objet.vie -= 1
@@ -305,7 +306,7 @@ class Epee(Sprite):
 
 class Squelette(Monstre):
     def __init__(self, x, y, level):
-        super().__init__(x, y, 64, 16, level, 4, 1.5, 0.3, 1, 1)
+        super().__init__(x, y, 64, 16, level, 4, 1.5, 0.3, 2, 1)
         self.wabs = abs(self.w)
         self.arbalete = Arbalete(self)
 

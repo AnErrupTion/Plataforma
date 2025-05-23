@@ -52,19 +52,17 @@ class Personnage(Sprite):
             self.saut_timer += 1
 
     def peut_deplacer(self, direction) :
-        x, y = (self.x+self.dx)//8, (self.y+self.dy)//8
-        xw, yh = (self.x+self.dx+abs(self.w)-1)//8, (self.y+self.dy+self.h-1)//8
         if direction == BAS :
-            if self.level.tilemap.pget(x, yh) in TILE_COLLISION or self.level.tilemap.pget(xw, yh) in TILE_COLLISION:
+            if self.level.tilemap.pget(self.x//8, (self.y+self.h)//8) in TILE_COLLISION or self.level.tilemap.pget((self.x+self.w-1)//8, (self.y+self.h)//8) in TILE_COLLISION:
                 return False
         elif direction == HAUT :
-            if self.level.tilemap.pget(x, y) in TILE_COLLISION or self.level.tilemap.pget(xw, y) in TILE_COLLISION :
+            if self.level.tilemap.pget(self.x//8, self.y//8) in TILE_COLLISION or self.level.tilemap.pget((self.x+self.w-1)//8, self.y//8) in TILE_COLLISION :
                 return False
         elif direction == GAUCHE :
-            if self.level.tilemap.pget(x, y) in TILE_COLLISION or self.level.tilemap.pget(x, yh) in TILE_COLLISION:
+            if self.level.tilemap.pget(self.x//8, self.y//8) in TILE_COLLISION or self.level.tilemap.pget(self.x//8, (self.y+self.h-1)//8) in TILE_COLLISION:
                 return False
         elif direction == DROITE :
-            if self.level.tilemap.pget(xw, y) in TILE_COLLISION or self.level.tilemap.pget(xw, yh) in TILE_COLLISION:
+            if self.level.tilemap.pget((self.x+self.w)//8, self.y//8) in TILE_COLLISION or self.level.tilemap.pget((self.x+self.w)//8, (self.y+self.h-1)//8) in TILE_COLLISION:
                 return False
         return True
 

@@ -1,0 +1,7 @@
+**UNIVERS / THÈME CHOISI**: Univers n°2
+
+**MODE D'EMPLOI**
+Utilisez les flèches directionnelles (gauche/droite) pour vous déplacer. Sautez en appuyant sur celle du haut. Pour ouvrir un coffre, appuyez sur E, et pour attaquer un monstre, appuyez sur R. Quittez le jeu avec Échap.
+
+**PRÉSENTATION / EXPLICATIONS**
+Plataforma! est un petit platformer avec des éléments de gameplay inspirés des beat them up. Il y a des platformes fixes, notre chevalier principal avec une épée, des montres (squelettes avec des arbalètes), des collectibles (pièces, diamants), et des interactibles (coffres avec diamants). Pour gagner, ouvrez le coffre à la fin du niveau et récupérez le diamant, sans vous faire tuer !

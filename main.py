@@ -112,6 +112,20 @@ class Personnage(Sprite):
                 self.w = -self.w
             self.dx = round(self.dx + self.vitesse, 1)
 
+    def verifie_position(self):
+        if self.peut_deplacer(BAS):
+                self.is_grounded = False
+                self.dy = self.gravity
+
+        if not self.peut_deplacer(HAUT) or not self.peut_deplacer(BAS):
+            self.is_grounded = True
+            self.dy = 0
+        
+        if self.dx >0 and not self.peut_deplacer(DROITE):
+            self.dx = 0
+        elif self.dx < 0 and not self.peut_deplacer(GAUCHE):
+            self.dx = 0
+
     def update(self, joueur, niveau):
         self.x += self.dx
         self.y += self.dy
@@ -121,13 +135,7 @@ class Personnage(Sprite):
         elif self.dx < 0:
             self.dx = round(self.dx + 0.2, 1)
 
-        if self.peut_deplacer(BAS):
-            self.is_grounded = False
-            self.dy = self.gravity
-
-        if not self.peut_deplacer(HAUT) or not self.peut_deplacer(BAS):
-            self.is_grounded = True
-            self.dy = 0
+        self.verifie_position()
 
         self.saut_update()
 

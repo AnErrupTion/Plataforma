@@ -203,6 +203,7 @@ class Joueur(Personnage):
         self.vie = vie
         self.score = 0
         super().__init__(x, y, 0, 16, level, 4, 2, 0.4)
+        self.epee = Epee(self)
 
     def update(self, joueur, niveau):
         super().update(joueur, niveau)
@@ -220,6 +221,10 @@ class Joueur(Personnage):
 
         if not appuye:
             self.u = self.uorig
+
+    def draw(self):
+        super().draw()
+        self.epee.draw()
 
 
 class Monstre(Personnage):
@@ -266,7 +271,23 @@ class Arbalete(Sprite):
 
         self.y = self.personnage.y
 
-        self.x = self.personnage.x + self.personnage.w // 2
+        self.x = self.personnage.x + 8
+        direction = 1 if self.personnage.x < self.x else -1
+        self.w = direction * self.wabs
+        return super().draw()
+
+
+class Epee(Sprite):
+    def __init__(self, personnage):
+        self.personnage = personnage
+        super().__init__(personnage.x + 10, personnage.y, 0, 64)
+        self.wabs = abs(self.w)
+        direction = 1 if self.personnage.x < self.x else -1
+        self.w = direction * self.wabs
+
+    def draw(self):
+        self.y = self.personnage.y
+        self.x = self.personnage.x + 10
         direction = 1 if self.personnage.x < self.x else -1
         self.w = direction * self.wabs
         return super().draw()
@@ -344,6 +365,11 @@ class App:
             if self.joueur.vie <= 0 or self.joueur.y >= HEIGHT - 20:
                 pyxel.camera(0, 0)
                 self.etat = 1
+                return
+
+            if self.joueur.score >= 12:
+                pyxel.camera(0, 0)
+                self.etat = 3
                 return
 
             self.niveau.update(self.joueur)

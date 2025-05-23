@@ -28,7 +28,7 @@ class Sprite:
 
 
 class Personnage(Sprite):
-    def __init__(self, x, y, u, v, level, nb_frames, vitesse_max, vitesse):
+    def __init__(self, x, y, u, v, level, nb_frames, vitesse_max, vitesse, vie):
         super().__init__(x, y, u, v)
         self.vitesse_max = vitesse_max
         self.gravity = 2
@@ -41,6 +41,7 @@ class Personnage(Sprite):
         self.uorig = u
         self.ucur = 0
         self.umax = nb_frames * 16
+        self.vie = vie
 
     def sauter(self):
         if self.is_grounded:
@@ -199,10 +200,9 @@ class Coffre(Interactible):
 
 
 class Joueur(Personnage):
-    def __init__(self, x, y, level, vie):
-        self.vie = vie
+    def __init__(self, x, y, level):
         self.score = 0
-        super().__init__(x, y, 0, 16, level, 4, 2, 0.4)
+        super().__init__(x, y, 0, 16, level, 4, 2, 0.4, 3)
         self.epee = Epee(self)
 
     def update(self, joueur, niveau):
@@ -218,6 +218,10 @@ class Joueur(Personnage):
         if pyxel.btnp(pyxel.KEY_UP):
             self.sauter()
             appuye = True
+        if pyxel.btnp(pyxel.KEY_R):
+            for objet in niveau.objets:
+                if isinstance(objet, Monstre) and self.collision(objet):
+                    objet.vie -= 1
 
         if not appuye:
             self.u = self.uorig
@@ -228,9 +232,15 @@ class Joueur(Personnage):
 
 
 class Monstre(Personnage):
-    def __init__(self, x, y, u, v, level, nb_frames, vitesse_max, vitesse, degats):
+    def __init__(self, x, y, u, v, level, nb_frames, vitesse_max, vitesse, vie, degats):
         self.degats = degats
-        super().__init__(x, y, u, v, level, nb_frames, vitesse_max, vitesse)
+        super().__init__(x, y, u, v, level, nb_frames, vitesse_max, vitesse, vie)
+
+    def update(self, joueur, niveau):
+        super().update(joueur, niveau)
+
+        if self.vie <= 0:
+            niveau.objets.remove(self)
 
 
 class Projectile(Sprite):
@@ -295,7 +305,7 @@ class Epee(Sprite):
 
 class Squelette(Monstre):
     def __init__(self, x, y, level):
-        super().__init__(x, y, 64, 16, level, 4, 1.5, 0.3, 1)
+        super().__init__(x, y, 64, 16, level, 4, 1.5, 0.3, 1, 1)
         self.wabs = abs(self.w)
         self.arbalete = Arbalete(self)
 
@@ -357,7 +367,7 @@ class App:
         self.niveau.objets.append(Squelette(20 * 8, 5 * 8, self.niveau))
         self.niveau.objets.append(Squelette(49 * 8, 2 * 8, self.niveau))
 
-        self.joueur = Joueur(8, 64, self.niveau, 3)
+        self.joueur = Joueur(8, 64, self.niveau)
         self.coeur = Sprite(10, 10, 112, 48)
 
     def _update(self):

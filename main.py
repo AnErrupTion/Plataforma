@@ -160,8 +160,14 @@ class Piece(Collectible):
         super().__init__(x, y, 32, 48)
 
     def _ramasser(self, joueur, niveau):
-        print("Pièce ramassée !")
         joueur.score += 1
+
+class Diamant(Collectible):
+    def __init__(self, x, y):
+        super().__init__(x, y, 128, 32)
+
+    def _ramasser(self, joueur, niveau):
+        joueur.score += 10
 
 
 class Interactible(Sprite):
@@ -172,20 +178,23 @@ class Interactible(Sprite):
 
     def update(self, joueur, niveau):
         if pyxel.btnp(self.touche) and not self.interagis:
-            self._interaction()
+            self._interaction(niveau)
             self.interagis = True
 
-    def _interaction(self):
+    def _interaction(self, niveau):
         pass
 
 
 class Coffre(Interactible):
     def __init__(self, x, y):
         super().__init__(x, y, 32, 32, pyxel.KEY_E)
+        self.est_ouvert = False
 
-    def _interaction(self):
-        print("Interagis avec un coffre !")
-        return super()._interaction()
+    def _interaction(self, niveau):
+        if not self.est_ouvert:
+            self.u += 16
+        niveau.objets.append(Diamant(self.x, self.y-24))
+        return super()._interaction(niveau)
 
 
 class Joueur(Personnage):
@@ -237,7 +246,7 @@ class Projectile(Sprite):
 class Arbalete(Sprite):
     def __init__(self, personnage):
         self.personnage = personnage
-        super().__init__(personnage.x + 8, personnage.y + personnage.h, 80, 64)
+        super().__init__(personnage.x + 8, personnage.y, 80, 64)
         self.wabs = abs(self.w)
         direction = 1 if self.personnage.x < self.x else -1
         self.w = direction * self.wabs
@@ -253,7 +262,9 @@ class Arbalete(Sprite):
                 self.ucur += 16
         else:
             self.u = self.uorig
-
+        
+        self.y = self.personnage.y
+        
         self.x = self.personnage.x + self.personnage.w // 2
         direction = 1 if self.personnage.x < self.x else -1
         self.w = direction * self.wabs
@@ -317,7 +328,9 @@ class App:
     def _reset(self):
         self.etat = 0
         self.niveau = Niveau(64, 32, 0, [Piece(64, 64), Piece(240, 55)])
-        self.niveau.objets.append(Squelette(160, 40, self.niveau))
+        self.niveau.objets.append(Squelette(20*8, 5*8, self.niveau))
+        self.niveau.objets.append(Squelette(49*8, 2*8, self.niveau))
+        self.niveau.objets.append(Coffre(59*8, 0))
 
         self.joueur = Joueur(8, 64, self.niveau, 3)
         self.coeur = Sprite(10, 10, 112, 48)

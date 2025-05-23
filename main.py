@@ -310,13 +310,13 @@ class App:
         pyxel.init(WIDTH, HEIGHT, title="Plataforma!", fps=60)
         pyxel.load("2.pyxres")
 
-        self._reset()
+        self.etat = 2
 
         pyxel.run(self._update, self._draw)
 
     def _reset(self):
         self.etat = 0
-        self.niveau = Niveau(64, 32, 0, [Piece(64, 64)])
+        self.niveau = Niveau(64, 32, 0, [Piece(64, 64), Piece(240, 55)])
         self.niveau.objets.append(Squelette(160, 40, self.niveau))
 
         self.joueur = Joueur(8, 64, self.niveau, 3)
@@ -331,13 +331,13 @@ class App:
 
             self.niveau.update(self.joueur)
             self.joueur.update(self.joueur, self.niveau)
-        elif self.etat == 1:
+        elif self.etat == 1 or self.etat == 2:
             if pyxel.btnp(pyxel.KEY_SPACE):
                 self._reset()
 
     def _draw(self):
         if self.etat == 0:
-            camx, camy = self.joueur.x - 20, self.joueur.y - 60
+            camx, camy = self.joueur.x - 60, self.joueur.y - 60
 
             pyxel.cls(pyxel.COLOR_NAVY)
             pyxel.camera(camx, camy)
@@ -362,6 +362,24 @@ class App:
             pyxel.cls(pyxel.COLOR_RED)
 
             texte = "Vous etes mort ! Appuyez sur Espace pour recommencer."
+            pyxel.text(
+                WIDTH // 2 - (pyxel.FONT_WIDTH * len(texte)) // 2,
+                (HEIGHT // 2 - pyxel.FONT_HEIGHT // 2) - 20,
+                texte,
+                pyxel.COLOR_WHITE,
+            )
+        elif self.etat == 2:
+            pyxel.cls(pyxel.COLOR_NAVY)
+
+            texte = "Plataforma!"
+            pyxel.text(
+                WIDTH // 2 - (pyxel.FONT_WIDTH * len(texte)) // 2,
+                (HEIGHT // 2 - pyxel.FONT_HEIGHT // 2) - 40,
+                texte,
+                pyxel.COLOR_WHITE,
+            )
+
+            texte = "Appuyez sur Espace pour commencer."
             pyxel.text(
                 WIDTH // 2 - (pyxel.FONT_WIDTH * len(texte)) // 2,
                 HEIGHT // 2 - pyxel.FONT_HEIGHT // 2,

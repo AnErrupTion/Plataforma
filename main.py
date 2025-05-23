@@ -39,6 +39,7 @@ class Personnage(Sprite):
         self.saut_timer = 0
         self.is_grounded = False
         self.uorig = u
+        self.ucur = 0
         self.umax = nb_frames * 16
 
     def sauter(self):
@@ -93,7 +94,8 @@ class Personnage(Sprite):
 
     def deplacer(self, direction):
         if pyxel.frame_count % 10 == 0:
-            self.u = (self.u + 16) % self.umax
+            self.u = self.uorig + self.ucur % self.umax
+            self.ucur += 16
 
         if (
             direction == GAUCHE
@@ -232,20 +234,52 @@ class Projectile(Sprite):
             niveau.objets.remove(self)
 
 
+class Arbalete(Sprite):
+    def __init__(self, personnage):
+        self.personnage = personnage
+        super().__init__(personnage.x + 8, personnage.y + personnage.h, 80, 64)
+        self.wabs = abs(self.w)
+        direction = -1 if self.personnage.x < self.x else 1
+        self.w = direction * self.wabs
+        self.uorig = self.u
+        self.ucur = 0
+        self.umax = 3 * 16
+        self.animer = False
+
+    def draw(self):
+        if self.animer:
+            if pyxel.frame_count % 30 == 0:
+                self.u = self.uorig + self.ucur % self.umax
+                self.ucur += 16
+        else:
+            self.u = self.uorig
+
+        self.x = self.personnage.x + self.personnage.w // 2
+        direction = -1 if self.personnage.x < self.x else 1
+        self.w = direction * self.wabs
+        return super().draw()
+
+
 class Squelette(Monstre):
     def __init__(self, x, y, level):
         super().__init__(x, y, 64, 16, level, 4, 1.5, 0.3, 1)
         self.wabs = abs(self.w)
+        self.arbalete = Arbalete(self)
 
     def update(self, joueur, niveau):
-        if pyxel.frame_count % 60 == 0 and abs(joueur.x - self.x) < 120:
+        self.arbalete.animer = abs(joueur.x - self.x) < 120
+        if pyxel.frame_count % 120 == 0 and self.arbalete.animer:
             direction = -1 if joueur.x < self.x else 1
             self.w = direction * self.wabs
 
-            projectile = Projectile(self.x, self.y, 0, 80, direction, 2, self.degats)
+            projectile = Projectile(self.x, self.y, 128, 64, direction, 2, self.degats)
             niveau.objets.append(projectile)
 
         return super().update(joueur, niveau)
+
+    def draw(self):
+        super().draw()
+        self.arbalete.draw()
 
 
 class Coeur(Sprite):

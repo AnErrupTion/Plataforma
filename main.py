@@ -162,6 +162,7 @@ class Piece(Collectible):
     def _ramasser(self, joueur, niveau):
         joueur.score += 1
 
+
 class Diamant(Collectible):
     def __init__(self, x, y):
         super().__init__(x, y, 128, 32)
@@ -193,7 +194,7 @@ class Coffre(Interactible):
     def _interaction(self, niveau):
         if not self.est_ouvert:
             self.u += 16
-        niveau.objets.append(Diamant(self.x, self.y-24))
+        niveau.objets.append(Diamant(self.x, self.y - 24))
         return super()._interaction(niveau)
 
 
@@ -262,9 +263,9 @@ class Arbalete(Sprite):
                 self.ucur += 16
         else:
             self.u = self.uorig
-        
+
         self.y = self.personnage.y
-        
+
         self.x = self.personnage.x + self.personnage.w // 2
         direction = 1 if self.personnage.x < self.x else -1
         self.w = direction * self.wabs
@@ -329,10 +330,11 @@ class App:
 
     def _reset(self):
         self.etat = 0
-        self.niveau = Niveau(64, 32, 0, [Piece(64, 64), Piece(240, 55)])
-        self.niveau.objets.append(Squelette(20*8, 5*8, self.niveau))
-        self.niveau.objets.append(Squelette(49*8, 2*8, self.niveau))
-        self.niveau.objets.append(Coffre(59*8, 0))
+        self.niveau = Niveau(
+            64, 32, 0, [Piece(64, 64), Piece(240, 55), Coffre(59 * 8, 0)]
+        )
+        self.niveau.objets.append(Squelette(20 * 8, 5 * 8, self.niveau))
+        self.niveau.objets.append(Squelette(49 * 8, 2 * 8, self.niveau))
 
         self.joueur = Joueur(8, 64, self.niveau, 3)
         self.coeur = Sprite(10, 10, 112, 48)
@@ -346,7 +348,7 @@ class App:
 
             self.niveau.update(self.joueur)
             self.joueur.update(self.joueur, self.niveau)
-        elif self.etat == 1 or self.etat == 2:
+        elif self.etat >= 1:
             if pyxel.btnp(pyxel.KEY_SPACE):
                 self._reset()
 
@@ -398,6 +400,16 @@ class App:
             pyxel.text(
                 WIDTH // 2 - (pyxel.FONT_WIDTH * len(texte)) // 2,
                 HEIGHT // 2 - pyxel.FONT_HEIGHT // 2,
+                texte,
+                pyxel.COLOR_WHITE,
+            )
+        elif self.etat == 3:
+            pyxel.cls(pyxel.COLOR_GREEN)
+
+            texte = "Vous avez gagne ! Appuyez sur Espace pour recommencer."
+            pyxel.text(
+                WIDTH // 2 - (pyxel.FONT_WIDTH * len(texte)) // 2,
+                (HEIGHT // 2 - pyxel.FONT_HEIGHT // 2) - 20,
                 texte,
                 pyxel.COLOR_WHITE,
             )

@@ -3,7 +3,7 @@ import pyxel
 WIDTH = 256
 HEIGHT = 256
 HAUT, BAS, GAUCHE, DROITE = 0, 1, 2, 3
-
+TILE_COLLISION = [(i, j) for i in range(0, 5) for j in range(12, 14)]
 
 class Sprite:
     def __init__(self, x, y, u, v, colkey=pyxel.COLOR_PURPLE):
@@ -27,46 +27,76 @@ class Sprite:
 
 
 class Personnage(Sprite):
-    def __init__(self, x, y, u, v, vitesse_max, vitesse):
+    def __init__(self, x, y, u, v, level, vitesse_max, vitesse):
         super().__init__(x, y, u, v)
         self.vitesse_max = vitesse_max
-        self.gravity = 0.3
+        self.gravity = 2
         self.vitesse = vitesse
         self.dx, self.dy = 0, 0
+        self.level = level
+        self.saute = False
+        self.saut_timer = 0
+        self.is_grounded = False
+
+    def sauter(self):
+        if self.is_grounded:
+            self.saute = True
+            self.saut_timer = 0
+    
+    def saut_update(self):
+        if self.saute and (self.saut_timer > 32 or not self.peut_deplacer(HAUT)):
+            self.saute = False
+            self.saut_timer = 0
+        if self.saute:
+            self.dy = -self.gravity
+            self.saut_timer += 1
 
     def peut_deplacer(self, direction) :
-        for obj in self.level.plateformes :
-            if direction == GAUCHE and self.collision(obj) and self.x== obj.x + obj.w:
+        x, y = (self.x+self.dx)//8, (self.y+self.dy)//8
+        xw, yh = (self.x+self.dx+abs(self.w)-1)//8, (self.y+self.dy+self.h-1)//8
+        if direction == BAS :
+            if self.level.tilemap.pget(x, yh) in TILE_COLLISION or self.level.tilemap.pget(xw, yh) in TILE_COLLISION:
                 return False
-            elif direction == DROITE and self.collision(obj) and self.x + self.w == obj.x:
+        elif direction == HAUT :
+            if self.level.tilemap.pget(x, y) in TILE_COLLISION or self.level.tilemap.pget(xw, y) in TILE_COLLISION :
                 return False
-            elif direction == HAUT and self.collision(obj) and self.y == obj.y + obj.h:
+        elif direction == GAUCHE :
+            if self.level.tilemap.pget(x, y) in TILE_COLLISION or self.level.tilemap.pget(x, yh) in TILE_COLLISION:
                 return False
-            elif direction == BAS and self.collision(obj) and self.y + self.h == obj.y :
+        elif direction == DROITE :
+            if self.level.tilemap.pget(xw, y) in TILE_COLLISION or self.level.tilemap.pget(xw, yh) in TILE_COLLISION:
                 return False
         return True
 
     def deplacer(self, direction):
-        if direction == GAUCHE and -self.vitesse_max < self.dx:
+        if direction == GAUCHE and -self.vitesse_max < self.dx and self.peut_deplacer(GAUCHE):
             if self.w > 0:
                 self.w = -self.w
-            self.dx -= self.vitesse
-        elif direction == DROITE and self.dx < self.vitesse_max:
+            self.dx = round(self.dx-self.vitesse, 1)
+        elif direction == DROITE and self.dx < self.vitesse_max and self.peut_deplacer(DROITE):
             if self.w < 0:
                 self.w = -self.w
-            self.dx += self.vitesse
+            self.dx = round(self.dx+self.vitesse, 1)
 
     def update(self):
+        self.x += self.dx
+        self.y += self.dy
+        
         if self.dx > 0:
-            self.dx -= self.vitesse - 0.1
+            self.dx = round(self.dx-0.2, 1)
         elif self.dx < 0:
-            self.dx += self.vitesse - 0.1
+            self.dx = round(self.dx+0.2, 1)
 
-        # if ...:
-        #     self.y -= self.gravity
+        if self.peut_deplacer(BAS):
+            self.is_grounded = False
+            self.dy = self.gravity
+        
+        if not self.peut_deplacer(HAUT) or not self.peut_deplacer(BAS):
+            self.is_grounded = True
+            self.dy = 0
+        
+        self.saut_update()
 
-        self.x += round(self.dx)
-        self.y += round(self.dy)
 
 
 class Collectible(Sprite):
@@ -96,8 +126,8 @@ class Plateforme(Sprite):
 
 
 class Joueur(Personnage):
-    def __init__(self, x, y):
-        super().__init__(x, y, 0, 16, 2, 0.4)
+    def __init__(self, x, y, level):
+        super().__init__(x, y, 0, 16, level, 2, 0.4)
 
     def update(self):
         super().update()
@@ -106,6 +136,8 @@ class Joueur(Personnage):
             self.deplacer(GAUCHE)
         if pyxel.btn(pyxel.KEY_RIGHT):
             self.deplacer(DROITE)
+        if pyxel.btnp(pyxel.KEY_UP):
+            self.sauter()
 
 
 class Niveau:
@@ -125,7 +157,7 @@ class App:
         pyxel.load("2.pyxres")
 
         self.niveau = Niveau(0, [], [])
-        self.joueur = Joueur(64, 64)
+        self.joueur = Joueur(64, 64, self.niveau)
 
         pyxel.run(self._update, self._draw)
 

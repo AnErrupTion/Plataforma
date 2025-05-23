@@ -34,6 +34,18 @@ class Personnage(Sprite):
         self.vitesse = vitesse
         self.dx, self.dy = 0, 0
 
+    def peut_deplacer(self, direction) :
+        for obj in self.level.plateformes :
+            if direction == GAUCHE and self.collision(obj) and self.x== obj.x + obj.w:
+                return False
+            elif direction == DROITE and self.collision(obj) and self.x + self.w == obj.x:
+                return False
+            elif direction == HAUT and self.collision(obj) and self.y == obj.y + obj.h:
+                return False
+            elif direction == BAS and self.collision(obj) and self.y + self.h == obj.y :
+                return False
+        return True
+
     def deplacer(self, direction):
         if direction == GAUCHE and -self.vitesse_max < self.dx:
             if self.w > 0:

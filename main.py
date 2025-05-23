@@ -283,6 +283,7 @@ class Squelette(Monstre):
             direction = -1 if joueur.x < self.x else 1
             self.w = direction * self.wabs
 
+            pyxel.play(0, 3)
             projectile = Projectile(self.x, self.y, 128, 64, direction, 2, self.degats)
             niveau.objets.append(projectile)
 
@@ -320,6 +321,7 @@ class App:
     def __init__(self):
         pyxel.init(WIDTH, HEIGHT, title="Plataforma!", fps=60)
         pyxel.load("2.pyxres")
+        pyxel.playm(0, loop=True)
 
         self.etat = 2
 

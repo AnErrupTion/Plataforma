@@ -310,37 +310,54 @@ class App:
         pyxel.init(WIDTH, HEIGHT, title="Plataforma!", fps=60)
         pyxel.load("2.pyxres")
 
+        self._reset()
+
+        pyxel.run(self._update, self._draw)
+
+    def _reset(self):
+        self.etat = 0
         self.niveau = Niveau(64, 32, 0, [])
         self.niveau.objets.append(Squelette(160, 40, self.niveau))
 
         self.joueur = Joueur(8, 64, self.niveau, 3)
         self.coeur = Sprite(10, 10, 112, 48)
 
-        pyxel.run(self._update, self._draw)
-
-    def _reset(self):
-        self.joueur = Joueur(8, 64, self.niveau, 3)
-
     def _update(self):
-        if self.joueur.vie <= 0 or self.joueur.y >= HEIGHT - 20:
-            self._reset()
-            return
+        if self.etat == 0:
+            if self.joueur.vie <= 0 or self.joueur.y >= HEIGHT - 20:
+                pyxel.camera(0, 0)
+                self.etat = 1
+                return
 
-        self.niveau.update(self.joueur)
-        self.joueur.update(self.joueur, self.niveau)
+            self.niveau.update(self.joueur)
+            self.joueur.update(self.joueur, self.niveau)
+        elif self.etat == 1:
+            if pyxel.btnp(pyxel.KEY_SPACE):
+                self._reset()
 
     def _draw(self):
-        camx, camy = self.joueur.x - 20, self.joueur.y - 60
+        if self.etat == 0:
+            camx, camy = self.joueur.x - 20, self.joueur.y - 60
 
-        pyxel.cls(pyxel.COLOR_NAVY)
-        pyxel.camera(camx, camy)
+            pyxel.cls(pyxel.COLOR_NAVY)
+            pyxel.camera(camx, camy)
 
-        self.niveau.draw()
-        self.joueur.draw()
+            self.niveau.draw()
+            self.joueur.draw()
 
-        for num in range(self.joueur.vie):
-            coeur = Coeur(camx, camy, num)
-            coeur.draw()
+            for num in range(self.joueur.vie):
+                coeur = Coeur(camx, camy, num)
+                coeur.draw()
+        elif self.etat == 1:
+            pyxel.cls(pyxel.COLOR_RED)
+
+            texte = "Vous etes mort ! Appuyez sur Espace pour recommencer."
+            pyxel.text(
+                WIDTH // 2 - (pyxel.FONT_WIDTH * len(texte)) // 2,
+                HEIGHT // 2 - pyxel.FONT_HEIGHT // 2,
+                texte,
+                pyxel.COLOR_WHITE,
+            )
 
 
 App()

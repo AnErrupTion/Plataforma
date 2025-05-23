@@ -43,7 +43,7 @@ class Personnage(Sprite):
         self.umax = nb_frames * 16
         self.vie = vie
 
-    def inflige_degats(self, degats) :
+    def inflige_degats(self, degats):
         self.vie -= degats
         if self.vie <= 0:
             self.level.objets.remove(self)
@@ -102,7 +102,7 @@ class Personnage(Sprite):
         if pyxel.frame_count % 10 == 0:
             self.u = self.uorig + self.ucur % self.umax
             self.ucur += 16
-        
+
         if (
             direction == GAUCHE
             and -self.vitesse_max < self.dx
@@ -311,11 +311,11 @@ class Squelette(Monstre):
         self.clignote = False
         self.clignote_timer = 0
 
-    def verifie_clignote(self) :
+    def verifie_clignote(self):
         if self.clignote:
             if self.clignote_timer < 10:
                 self.clignote_timer += 1
-                if pyxel.frame_count % 3 == 0 :
+                if pyxel.frame_count % 3 == 0:
                     self.u = self.uorig if self.u != self.uorig else 96
                     self.v = 16 if self.v != 16 else 32
             else:
@@ -337,7 +337,7 @@ class Squelette(Monstre):
             pyxel.play(0, 3)
             projectile = Projectile(self.x, self.y, 128, 64, direction, 2, self.degats)
             niveau.objets.append(projectile)
-        
+
         self.verifie_clignote()
 
         return super().update(joueur, niveau)

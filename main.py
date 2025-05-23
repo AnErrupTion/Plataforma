@@ -43,6 +43,11 @@ class Personnage(Sprite):
         self.umax = nb_frames * 16
         self.vie = vie
 
+    def inflige_degats(self, degats) :
+        self.vie -= degats
+        if self.vie <= 0:
+            self.level.objets.remove(self)
+
     def sauter(self):
         if self.is_grounded:
             self.saute = True
@@ -97,7 +102,7 @@ class Personnage(Sprite):
         if pyxel.frame_count % 10 == 0:
             self.u = self.uorig + self.ucur % self.umax
             self.ucur += 16
-
+        
         if (
             direction == GAUCHE
             and -self.vitesse_max < self.dx
@@ -222,7 +227,7 @@ class Joueur(Personnage):
             pyxel.play(0, 4)
             for objet in niveau.objets:
                 if isinstance(objet, Monstre) and self.collision(objet):
-                    objet.vie -= 1
+                    objet.inflige_degats(1)
 
         if not appuye:
             self.u = self.uorig
@@ -236,12 +241,6 @@ class Monstre(Personnage):
     def __init__(self, x, y, u, v, level, nb_frames, vitesse_max, vitesse, vie, degats):
         self.degats = degats
         super().__init__(x, y, u, v, level, nb_frames, vitesse_max, vitesse, vie)
-
-    def update(self, joueur, niveau):
-        super().update(joueur, niveau)
-
-        if self.vie <= 0:
-            niveau.objets.remove(self)
 
 
 class Projectile(Sprite):
@@ -309,6 +308,25 @@ class Squelette(Monstre):
         super().__init__(x, y, 64, 16, level, 4, 1.5, 0.3, 2, 1)
         self.wabs = abs(self.w)
         self.arbalete = Arbalete(self)
+        self.clignote = False
+        self.clignote_timer = 0
+
+    def verifie_clignote(self) :
+        if self.clignote:
+            if self.clignote_timer < 10:
+                self.clignote_timer += 1
+                if pyxel.frame_count % 3 == 0 :
+                    self.u = self.uorig if self.u != self.uorig else 96
+                    self.v = 16 if self.v != 16 else 32
+            else:
+                self.u, self.v = self.uorig, 16
+                self.clignote = False
+                self.clignote_timer = 0
+
+    def inflige_degats(self, degats):
+        super().inflige_degats(degats)
+        self.clignote = True
+        self.clignote_timer = 0
 
     def update(self, joueur, niveau):
         self.arbalete.animer = abs(joueur.x - self.x) < 120
@@ -319,6 +337,8 @@ class Squelette(Monstre):
             pyxel.play(0, 3)
             projectile = Projectile(self.x, self.y, 128, 64, direction, 2, self.degats)
             niveau.objets.append(projectile)
+        
+        self.verifie_clignote()
 
         return super().update(joueur, niveau)
 
